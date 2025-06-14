@@ -1,0 +1,7 @@
+{
+  "extends": "@repo/typescript-config/base.json",
+  "compilerOptions": {
+    "rootDir": "./src", //TS ka code jahan hai
+    "outDir": "./dist" //TS ka code JS mai compile hokr jha store hota hai
+  }
+}
