@@ -8,6 +8,6 @@ const router: Router = express.Router();
 
 router.post("/signup", signUpController);
 router.post("/signin", signInController);
-router.post("/create-room", verifyJWTToken);
+// router.post("/create-room", verifyJWTToken);
 
-module.exports = router;
+export default router;
