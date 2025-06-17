@@ -1,1 +1,1 @@
-{"root":["./src/app.ts","./src/controllers/authController.ts","./src/middlewares/verifyJWTToken.ts","./src/routes/authRoute.ts"],"version":"5.8.3"}
+{"root":["./src/app.ts","./src/controllers/authController.ts","./src/controllers/roomController.ts","./src/middlewares/verifyJWTToken.ts","./src/routes/authRoute.ts","./src/routes/roomRoute.ts"],"version":"5.8.3"}

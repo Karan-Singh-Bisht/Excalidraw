@@ -1,33 +1,38 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { JWT_SECRET } from "@repo/backend-common/config";
 
 // Extend Express Request to include `user`
 declare global {
   namespace Express {
     interface Request {
-      user?: string | JwtPayload;
+      userId?: string | JwtPayload;
     }
   }
 }
 
 const verifyJWTToken = (req: Request, res: Response, next: NextFunction) => {
-  // Extract token from cookie or Authorization header
   const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
 
   if (!token) {
-    return res.status(401).json({ error: "Unauthorized - Token missing" });
+    res.status(401).json({ error: "Unauthorized - Token missing" });
+    return;
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-    req.user = decoded;
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload & {
+      id: string;
+    };
+    req.userId = decoded.id;
     next();
   } catch (err: any) {
     if (err.name === "TokenExpiredError") {
-      return res.status(401).json({ error: "Token expired" });
+      res.status(401).json({ error: "Token expired" });
+      return;
     }
     console.error("JWT verification failed:", err);
-    return res.status(403).json({ error: "Invalid token" });
+    res.status(403).json({ error: "Invalid token" });
+    return;
   }
 };
 
