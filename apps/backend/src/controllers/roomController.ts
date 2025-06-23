@@ -70,3 +70,18 @@ export const getChats = async (req: Request, res: Response) => {
   }
   res.status(200).json(messages);
 };
+
+export const getRoomViaSlug = async (req: Request, res: Response) => {
+  const { slugName } = req.params;
+  try {
+    const room = await prismaClient.room.findFirst({
+      where: {
+        slug: slugName,
+      },
+    });
+    res.status(200).json(room);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error", err });
+  }
+};

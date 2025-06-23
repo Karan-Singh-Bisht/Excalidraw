@@ -81,7 +81,6 @@ export class SocketManager {
   broadcastToRoom(roomId: string, message: string) {
     const room = this.rooms.get(roomId);
     //@ts-ignore
-    console.log("Current users in room:", Array.from(room));
     if (room) {
       room.forEach((userId) => {
         const socket = this.users.get(userId);

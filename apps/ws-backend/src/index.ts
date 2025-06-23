@@ -2,6 +2,7 @@ import { WebSocketServer } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config";
 import { SocketManager } from "./SocketManager";
+import { prismaClient } from "@repo/db/client";
 
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -44,22 +45,40 @@ wss.on("connection", function connection(ws, request) {
   console.log(`user ${userId} connected`);
 
   //Handle incoming messages
-  ws.on("message", (data) => {
+  ws.on("message", async (data) => {
     try {
       const parsed = JSON.parse(data.toString()); // Parse the incoming message
       const socketManager = SocketManager.getInstance();
+
       switch (parsed.type) {
         case "joinRoom":
           socketManager.joinRoom(userId, parsed.roomId);
-          ws.send(`Joined Room ${parsed.roomId}`);
+          ws.send(
+            JSON.stringify({
+              type: "info",
+              message: `Joined Room ${parsed.roomId}`,
+            })
+          );
           break;
 
         case "leaveRoom":
           socketManager.leaveRoom(userId, parsed.roomId);
-          ws.send(`Left Room ${parsed.roomId}`);
+          ws.send(
+            JSON.stringify({
+              type: "info",
+              message: `Left Room ${parsed.roomId}`,
+            })
+          );
           break;
 
         case "chat":
+          await prismaClient.chat.create({
+            data: {
+              roomId: parsed.roomId,
+              message: parsed.message,
+              userId,
+            },
+          });
           socketManager.broadcastToRoom(
             parsed.roomId,
             JSON.stringify({
@@ -71,7 +90,12 @@ wss.on("connection", function connection(ws, request) {
           break;
 
         default:
-          ws.send("Unknown message type");
+          ws.send(
+            JSON.stringify({
+              type: "error",
+              message: "Unknown message type",
+            })
+          );
       }
     } catch (err) {
       console.error("Error parsing message:", err);
@@ -84,5 +108,10 @@ wss.on("connection", function connection(ws, request) {
     console.log(`user ${userId} disconnected`);
   });
 
-  ws.send("connection established");
+  ws.send(
+    JSON.stringify({
+      type: "info",
+      message: "Connection established",
+    })
+  );
 });
