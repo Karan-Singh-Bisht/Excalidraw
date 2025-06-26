@@ -6,20 +6,17 @@ import { prismaClient } from "@repo/db/client";
 
 const wss = new WebSocketServer({ port: 8080 });
 
-function checkUser(token: string): string | null {
+function checkUser(token: string): string {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-
     if (typeof decoded === "string") {
-      return null;
+      return "";
     }
-
     return decoded.id;
   } catch (err) {
     console.error("JWT verification failed:", err);
-    return null;
+    return "";
   }
-  return null;
 }
 
 wss.on("connection", function connection(ws, request) {
@@ -31,7 +28,11 @@ wss.on("connection", function connection(ws, request) {
   }
 
   const queryParams = new URLSearchParams(url.split("?")[1]);
-  const token = queryParams.get("token") || "";
+  const token = queryParams.get("token");
+  if (!token) {
+    ws.close(1008, "Unauthorized");
+    return;
+  }
   const userId = checkUser(token);
 
   if (!userId) {
@@ -80,7 +81,7 @@ wss.on("connection", function connection(ws, request) {
             },
           });
           socketManager.broadcastToRoom(
-            parsed.roomId,
+            JSON.stringify(parsed.roomId),
             JSON.stringify({
               from: userId,
               message: parsed.message,

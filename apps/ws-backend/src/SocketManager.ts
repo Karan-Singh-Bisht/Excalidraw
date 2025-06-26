@@ -1,7 +1,7 @@
 export class SocketManager {
   private static instance: SocketManager;
   private users: Map<string, any>; //userId-->socket
-  private rooms: Map<string, Set<string>>; //roomId-->Set of userIds
+  private rooms: Map<number | string, Set<string>>; //roomId-->Set of userIds
   private userRooms: Map<string, Set<string>>; //userId-->Set of roomIds
 
   private constructor() {
@@ -51,6 +51,7 @@ export class SocketManager {
   }
 
   joinRoom(userId: string, roomId: string) {
+    console.log(roomId);
     if (!this.rooms.has(roomId)) {
       this.rooms.set(roomId, new Set());
     }
@@ -80,7 +81,9 @@ export class SocketManager {
 
   broadcastToRoom(roomId: string, message: string) {
     const room = this.rooms.get(roomId);
-    //@ts-ignore
+    console.log(this.rooms);
+    console.log(room);
+
     if (room) {
       room.forEach((userId) => {
         const socket = this.users.get(userId);

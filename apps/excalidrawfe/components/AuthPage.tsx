@@ -5,6 +5,7 @@ import axios from "axios";
 import Link from "next/link";
 import { Zap, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 export function AuthPage({ isSignIn }: { isSignIn: boolean }) {
   const [email, setEmail] = useState("");
@@ -21,6 +22,8 @@ export function AuthPage({ isSignIn }: { isSignIn: boolean }) {
       );
       console.log("Auth success", response.data);
       if (response?.data?.token) {
+        Cookies.set("token", response.data?.token, { expires: 1 });
+        localStorage.setItem("token", response?.data?.token);
         router.push("/");
       }
     } catch (err: any) {

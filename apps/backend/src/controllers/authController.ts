@@ -55,10 +55,8 @@ export const signUpController = async (req: Request, res: Response) => {
 
     // Set cookie
     res.cookie("token", token, {
-      httpOnly: true,
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
     });
 
     res.status(201).json({
@@ -104,10 +102,8 @@ export const signInController = async (req: Request, res: Response) => {
       expiresIn: "24h",
     });
     res.cookie("token", token, {
-      httpOnly: true,
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
     });
     res.status(200).json({
       token,
