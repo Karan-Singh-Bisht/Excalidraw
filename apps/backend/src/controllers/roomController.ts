@@ -61,7 +61,7 @@ export const getChats = async (req: Request, res: Response) => {
     orderBy: {
       id: "desc",
     },
-    take: 50,
+    take: 1000,
   });
 
   if (!messages) {

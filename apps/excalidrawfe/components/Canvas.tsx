@@ -4,8 +4,9 @@ import { innitDraw } from "@/draw";
 import { useEffect, useRef, useState } from "react";
 import { IconBar } from "./IconBar";
 import { PencilIcon, RectangleHorizontal, Circle } from "lucide-react";
+import { Game } from "@/draw/Game";
 
-type shape = "circle" | "pencil" | "rect";
+export type Tool = "circle" | "pencil" | "rect";
 
 export function Canvas({
   roomId,
@@ -15,19 +16,23 @@ export function Canvas({
   socket: WebSocket;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [selectedTool, setSelectedTool] = useState<shape>("rect");
+  const [selectedTool, setSelectedTool] = useState<Tool>("rect");
+  const [game, setGame] = useState<Game>();
+
+  //Effects run twice in dev mode so to show canvas only once we destroy one canvas and render the other one
 
   useEffect(() => {
     if (canvasRef.current) {
-      const canvas = canvasRef.current;
-
-      innitDraw(canvas, roomId, socket);
+      const g = new Game(canvasRef.current, roomId, socket);
+      setGame(g);
+      return () => {
+        g.destroy();
+      };
     }
   }, [canvasRef]);
 
   useEffect(() => {
-    //@ts-ignore
-    window.selectedTool = selectedTool;
+    game?.setShape(selectedTool);
   }, [selectedTool]);
 
   return (
@@ -51,8 +56,8 @@ function ToolBar({
   selectedTool,
   setSelectedTool,
 }: {
-  selectedTool: shape;
-  setSelectedTool: (s: shape) => void;
+  selectedTool: Tool;
+  setSelectedTool: (s: Tool) => void;
 }) {
   return (
     <div className="flex gap-2">

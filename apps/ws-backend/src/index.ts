@@ -83,7 +83,7 @@ wss.on("connection", function connection(ws, request) {
           socketManager.broadcastToRoom(
             JSON.stringify(parsed.roomId),
             JSON.stringify({
-              from: userId,
+              type: "chat",
               message: parsed.message,
               roomId: parsed.roomId,
             })
